@@ -15,6 +15,12 @@ var (
 // Defines the models provided by OpenAI to use when generating
 // completions from OpenAI.
 const (
+	GPT5                  = "gpt-5"
+	GPT520250807          = "gpt-5-2025-08-07"
+	GPT5Mini              = "gpt-5-mini"
+	GPT5Mini20250807      = "gpt-5-mini-2025-08-07"
+	GPT5Nano              = "gpt-5-nano"
+	GPT5Nano20250807      = "gpt-5-nano-2025-08-07"
 	GPT4Dot1              = "gpt-4.1"
 	GPT4Dot120250414      = "gpt-4.1-2025-04-14"
 	GPT4Dot1Mini          = "gpt-4.1-mini"
@@ -98,6 +104,12 @@ const (
 
 var disabledModelsForEndpoints = map[string]map[string]bool{
 	"/completions": {
+		GPT5:                 true,
+		GPT520250807:         true,
+		GPT5Mini:             true,
+		GPT5Mini20250807:     true,
+		GPT5Nano:             true,
+		GPT5Nano20250807:     true,
 		GPT4Dot1:             true,
 		GPT4Dot120250414:     true,
 		GPT4Dot1Mini:         true,

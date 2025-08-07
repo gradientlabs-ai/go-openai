@@ -208,6 +208,7 @@ type CompletionRequest struct {
 	TopP            float32  `json:"top_p,omitempty"`
 	User            string   `json:"user,omitempty"`
 	ReasoningEffort string   `json:"reasoning_effort,omitempty"`
+	Verbosity       string   `json:"verbosity,omitempty"`
 }
 
 // CompletionChoice represents one of possible completions.

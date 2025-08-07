@@ -231,6 +231,8 @@ type ChatCompletionRequest struct {
 	// This can be either a string or an ToolChoice object.
 	ToolChoice      any    `json:"tool_choice,omitempty"`
 	ReasoningEffort string `json:"reasoning_effort,omitempty"`
+	// Verbosity constrains the verbosity of the model's response. Lower values will result in more concise responses, while higher values will result in more verbose responses.
+	Verbosity string `json:"verbosity,omitempty"`
 	// Specifies the latency tier to use for processing the request.
 	ServiceTier ServiceTier `json:"service_tier,omitempty"`
 }

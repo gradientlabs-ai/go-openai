@@ -68,11 +68,7 @@ type ChatMessageImageURL struct {
 }
 
 // API docs: https://platform.openai.com/docs/guides/pdf-files?api-mode=chat&lang=python
-// And for uploading files: https://platform.openai.com/docs/guides/pdf-files?api-mode=chat&lang=python#uploading-files
 type ChatMessageFileData struct {
-	// Use FileID to reference a file already uploaded to OpenAI via their Files API.
-	FileID   string `json:"file_id,omitempty"`
-	// Otherwise use FileData to pass in the file data as a base64 data URL.
 	FileData string `json:"file_data,omitempty"`
 	// Filename seems to be a required field, even when passing in the file data as bytes.
 	// But it doesn't get used or validated in anyway.

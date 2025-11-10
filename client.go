@@ -38,6 +38,10 @@ func (h *httpHeader) GetRateLimitHeaders() RateLimitHeaders {
 	return newRateLimitHeaders(h.Header())
 }
 
+func (h *httpHeader) GetRequestID() string {
+	return h.Header().Get("x-request-id")
+}
+
 type RawResponse struct {
 	io.ReadCloser
 
@@ -257,6 +261,7 @@ func (c *Client) handleErrorResp(resp *http.Response) error {
 		reqErr := &RequestError{
 			HTTPStatusCode: resp.StatusCode,
 			Err:            err,
+			httpHeader:     httpHeader(resp.Header),
 		}
 		if errRes.Error != nil {
 			reqErr.Err = errRes.Error

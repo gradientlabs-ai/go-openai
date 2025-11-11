@@ -270,6 +270,7 @@ func (c *Client) handleErrorResp(resp *http.Response) error {
 	}
 
 	errRes.Error.HTTPStatusCode = resp.StatusCode
+	errRes.Error.httpHeader = httpHeader(resp.Header)
 	return errRes.Error
 }
 

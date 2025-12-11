@@ -71,7 +71,7 @@ type ChatMessageImageURL struct {
 // And for uploading files: https://platform.openai.com/docs/guides/pdf-files?api-mode=chat&lang=python#uploading-files
 type ChatMessageFileData struct {
 	// Use FileID to reference a file already uploaded to OpenAI via their Files API.
-	FileID   string `json:"file_id,omitempty"`
+	FileID string `json:"file_id,omitempty"`
 	// Otherwise use FileData to pass in the file data as a base64 data URL.
 	FileData string `json:"file_data,omitempty"`
 	// Filename seems to be a required field, even when passing in the file data as bytes.
@@ -233,12 +233,22 @@ type ChatCompletionRequest struct {
 	FunctionCall any    `json:"function_call,omitempty"`
 	Tools        []Tool `json:"tools,omitempty"`
 	// This can be either a string or an ToolChoice object.
-	ToolChoice      any    `json:"tool_choice,omitempty"`
-	ReasoningEffort string `json:"reasoning_effort,omitempty"`
+	ToolChoice any `json:"tool_choice,omitempty"`
+	// Options for streaming response. Only set this when you set stream: true.
+	StreamOptions   *StreamOptions `json:"stream_options,omitempty"`
+	ReasoningEffort string         `json:"reasoning_effort,omitempty"`
 	// Verbosity constrains the verbosity of the model's response. Lower values will result in more concise responses, while higher values will result in more verbose responses.
 	Verbosity string `json:"verbosity,omitempty"`
 	// Specifies the latency tier to use for processing the request.
 	ServiceTier ServiceTier `json:"service_tier,omitempty"`
+}
+
+type StreamOptions struct {
+	// If set, an additional chunk will be streamed before the data: [DONE] message.
+	// The usage field on this chunk shows the token usage statistics for the entire request,
+	// and the choices field will always be an empty array.
+	// All other chunks will also include a usage field, but with a null value.
+	IncludeUsage bool `json:"include_usage,omitempty"`
 }
 
 type ToolType string

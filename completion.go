@@ -15,6 +15,9 @@ var (
 // Defines the models provided by OpenAI to use when generating
 // completions from OpenAI.
 const (
+	GPT5Dot2              = "gpt-5.2"
+	GPT5Dot2ChatLatest    = "gpt-5.2-chat-latest"
+	GPT5Dot220251211      = "gpt-5.2-2025-12-11"
 	GPT5Dot1              = "gpt-5.1"
 	GPT5Dot1ChatLatest    = "gpt-5.1-chat-latest"
 	GPT5Dot120251113      = "gpt-5.1-2025-11-13"

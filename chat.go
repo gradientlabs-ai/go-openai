@@ -112,6 +112,10 @@ type ChatCompletionMessage struct {
 
 	// For Role=tool prompts this should be set to the ID given in the assistant's prior request to call a tool.
 	ToolCallID string `json:"tool_call_id,omitempty"`
+
+	// ReasoningContent contains the model's reasoning/thinking process when using reasoning models
+	// (e.g., OpenAI o1 models or Gemini with thinking enabled).
+	ReasoningContent string `json:"reasoning_content,omitempty"`
 }
 
 func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
@@ -120,50 +124,54 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 	}
 	if len(m.MultiContent) > 0 {
 		msg := struct {
-			Role         string            `json:"role"`
-			Content      string            `json:"-"`
-			MultiContent []ChatMessagePart `json:"content,omitempty"`
-			Name         string            `json:"name,omitempty"`
-			FunctionCall *FunctionCall     `json:"function_call,omitempty"`
-			ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
-			ToolCallID   string            `json:"tool_call_id,omitempty"`
+			Role             string            `json:"role"`
+			Content          string            `json:"-"`
+			MultiContent     []ChatMessagePart `json:"content,omitempty"`
+			Name             string            `json:"name,omitempty"`
+			FunctionCall     *FunctionCall     `json:"function_call,omitempty"`
+			ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
+			ToolCallID       string            `json:"tool_call_id,omitempty"`
+			ReasoningContent string            `json:"reasoning_content,omitempty"`
 		}(m)
 		return json.Marshal(msg)
 	}
 	msg := struct {
-		Role         string            `json:"role"`
-		Content      string            `json:"content"`
-		MultiContent []ChatMessagePart `json:"-"`
-		Name         string            `json:"name,omitempty"`
-		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
-		ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
-		ToolCallID   string            `json:"tool_call_id,omitempty"`
+		Role             string            `json:"role"`
+		Content          string            `json:"content"`
+		MultiContent     []ChatMessagePart `json:"-"`
+		Name             string            `json:"name,omitempty"`
+		FunctionCall     *FunctionCall     `json:"function_call,omitempty"`
+		ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
+		ToolCallID       string            `json:"tool_call_id,omitempty"`
+		ReasoningContent string            `json:"reasoning_content,omitempty"`
 	}(m)
 	return json.Marshal(msg)
 }
 
 func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 	msg := struct {
-		Role         string `json:"role"`
-		Content      string `json:"content"`
-		MultiContent []ChatMessagePart
-		Name         string        `json:"name,omitempty"`
-		FunctionCall *FunctionCall `json:"function_call,omitempty"`
-		ToolCalls    []ToolCall    `json:"tool_calls,omitempty"`
-		ToolCallID   string        `json:"tool_call_id,omitempty"`
+		Role             string `json:"role"`
+		Content          string `json:"content"`
+		MultiContent     []ChatMessagePart
+		Name             string        `json:"name,omitempty"`
+		FunctionCall     *FunctionCall `json:"function_call,omitempty"`
+		ToolCalls        []ToolCall    `json:"tool_calls,omitempty"`
+		ToolCallID       string        `json:"tool_call_id,omitempty"`
+		ReasoningContent string        `json:"reasoning_content,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &msg); err == nil {
 		*m = ChatCompletionMessage(msg)
 		return nil
 	}
 	multiMsg := struct {
-		Role         string `json:"role"`
-		Content      string
-		MultiContent []ChatMessagePart `json:"content"`
-		Name         string            `json:"name,omitempty"`
-		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
-		ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
-		ToolCallID   string            `json:"tool_call_id,omitempty"`
+		Role             string `json:"role"`
+		Content          string
+		MultiContent     []ChatMessagePart `json:"content"`
+		Name             string            `json:"name,omitempty"`
+		FunctionCall     *FunctionCall     `json:"function_call,omitempty"`
+		ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
+		ToolCallID       string            `json:"tool_call_id,omitempty"`
+		ReasoningContent string            `json:"reasoning_content,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &multiMsg); err != nil {
 		return err
@@ -241,6 +249,10 @@ type ChatCompletionRequest struct {
 	Verbosity string `json:"verbosity,omitempty"`
 	// Specifies the latency tier to use for processing the request.
 	ServiceTier ServiceTier `json:"service_tier,omitempty"`
+	// ExtraBody allows passing provider-specific parameters that aren't part of the standard OpenAI API.
+	// For example, Google's Gemini API uses this for thinking_config:
+	// ExtraBody: map[string]any{"google": map[string]any{"thinking_config": map[string]any{"include_thoughts": true}}}
+	ExtraBody map[string]any `json:"extra_body,omitempty"`
 }
 
 type StreamOptions struct {

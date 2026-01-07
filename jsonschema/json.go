@@ -34,6 +34,10 @@ type Definition struct {
 	Required []string `json:"required,omitempty"`
 	// Items specifies which data type an array contains, if the schema type is Array.
 	Items *Definition `json:"items,omitempty"`
+	// AdditionalProperties specifies whether additional properties are allowed.
+	// When using structured outputs with strict mode, this must be set to false.
+	// Use a pointer so that false is explicitly serialized (vs omitted when not set).
+	AdditionalProperties *bool `json:"additionalProperties,omitempty"`
 }
 
 func (d Definition) MarshalJSON() ([]byte, error) {

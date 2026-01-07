@@ -157,12 +157,85 @@ func TestDefinition_MarshalJSON(t *testing.T) {
    "items":{
       "type":"string",
       "properties":{
-         
+
       }
    },
    "properties":{
       "name":{
          "type":"string",
+         "properties":{}
+      }
+   }
+}`,
+		},
+		{
+			name: "Test with AdditionalProperties false (strict mode)",
+			def: func() jsonschema.Definition {
+				f := false
+				return jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"name": {
+							Type: jsonschema.String,
+						},
+					},
+					Required:             []string{"name"},
+					AdditionalProperties: &f,
+				}
+			}(),
+			want: `{
+   "type":"object",
+   "properties":{
+      "name":{
+         "type":"string",
+         "properties":{}
+      }
+   },
+   "required":["name"],
+   "additionalProperties":false
+}`,
+		},
+		{
+			name: "Test with AdditionalProperties true",
+			def: func() jsonschema.Definition {
+				t := true
+				return jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"data": {
+							Type: jsonschema.String,
+						},
+					},
+					AdditionalProperties: &t,
+				}
+			}(),
+			want: `{
+   "type":"object",
+   "properties":{
+      "data":{
+         "type":"string",
+         "properties":{}
+      }
+   },
+   "additionalProperties":true
+}`,
+		},
+		{
+			name: "Test with AdditionalProperties nil (omitted)",
+			def: jsonschema.Definition{
+				Type: jsonschema.Object,
+				Properties: map[string]jsonschema.Definition{
+					"value": {
+						Type: jsonschema.Number,
+					},
+				},
+				AdditionalProperties: nil,
+			},
+			want: `{
+   "type":"object",
+   "properties":{
+      "value":{
+         "type":"number",
          "properties":{}
       }
    }

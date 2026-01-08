@@ -199,10 +199,22 @@ type ChatCompletionResponseFormatType string
 const (
 	ChatCompletionResponseFormatTypeJSONObject ChatCompletionResponseFormatType = "json_object"
 	ChatCompletionResponseFormatTypeText       ChatCompletionResponseFormatType = "text"
+	ChatCompletionResponseFormatTypeJSONSchema ChatCompletionResponseFormatType = "json_schema"
 )
 
 type ChatCompletionResponseFormat struct {
-	Type ChatCompletionResponseFormatType `json:"type,omitempty"`
+	Type       ChatCompletionResponseFormatType       `json:"type,omitempty"`
+	JSONSchema *ChatCompletionResponseFormatJSONSchema `json:"json_schema,omitempty"`
+}
+
+// ChatCompletionResponseFormatJSONSchema defines the JSON schema for structured outputs.
+// Name is required and must be alphanumeric with underscores/dashes, max 64 chars.
+// When Strict is true, the model will always follow the exact schema defined.
+type ChatCompletionResponseFormatJSONSchema struct {
+	Name        string          `json:"name"`
+	Description string          `json:"description,omitempty"`
+	Schema      json.RawMessage `json:"schema"`
+	Strict      bool            `json:"strict,omitempty"`
 }
 
 // ChatCompletionRequest represents a request structure for chat completion API.

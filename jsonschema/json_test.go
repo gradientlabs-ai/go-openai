@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/gradientlabs-ai/go-openai/jsonschema"
+	invopopjsonschema "github.com/invopop/jsonschema"
 )
 
 func TestDefinition_MarshalJSON(t *testing.T) {
@@ -157,7 +159,7 @@ func TestDefinition_MarshalJSON(t *testing.T) {
    "items":{
       "type":"string",
       "properties":{
-         
+
       }
    },
    "properties":{
@@ -201,11 +203,173 @@ func structToMap(t *testing.T, v any) map[string]any {
 		return nil
 	}
 
-	var got map[string]interface{}
+	var got map[string]any
 	err = json.Unmarshal(gotBytes, &got)
 	if err != nil {
 		t.Errorf("Failed to Unmarshal JSON: error =  %v", err)
 		return nil
 	}
 	return got
+}
+
+func TestGenerateSchema(t *testing.T) {
+	t.Run("simple struct", func(t *testing.T) {
+		type Person struct {
+			Name string `json:"name"`
+			Age  int    `json:"age"`
+		}
+
+		schema := jsonschema.GenerateSchema[Person]()
+
+		if schema.Type != "object" {
+			t.Errorf("expected type object, got %v", schema.Type)
+		}
+		if schema.Properties.Len() != 2 {
+			t.Errorf("expected 2 properties, got %d", schema.Properties.Len())
+		}
+		if schema.Properties.GetPair("name").Value.Type != "string" {
+			t.Errorf("expected name to be string")
+		}
+		if schema.Properties.GetPair("age").Value.Type != "integer" {
+			t.Errorf("expected age to be integer")
+		}
+		// AdditionalProperties should be false (strict mode)
+		if schema.AdditionalProperties != invopopjsonschema.FalseSchema {
+			t.Errorf("expected AdditionalProperties to be FalseSchema")
+		}
+	})
+
+	t.Run("struct with descriptions", func(t *testing.T) {
+		type Step struct {
+			Explanation string `json:"explanation" jsonschema_description:"The reasoning for this step"`
+			Output      string `json:"output" jsonschema_description:"The result of this step"`
+		}
+
+		schema := jsonschema.GenerateSchema[Step]()
+
+		explanationProp := schema.Properties.GetPair("explanation")
+		if explanationProp.Value.Description != "The reasoning for this step" {
+			t.Errorf("unexpected description: %v", explanationProp.Value.Description)
+		}
+		outputProp := schema.Properties.GetPair("output")
+		if outputProp.Value.Description != "The result of this step" {
+			t.Errorf("unexpected description: %v", outputProp.Value.Description)
+		}
+	})
+
+	t.Run("struct with enum", func(t *testing.T) {
+		type Status struct {
+			State string `json:"state" jsonschema:"enum=pending,enum=active,enum=completed"`
+		}
+
+		schema := jsonschema.GenerateSchema[Status]()
+
+		stateProp := schema.Properties.GetPair("state")
+		expected := []any{"pending", "active", "completed"}
+		if len(stateProp.Value.Enum) != len(expected) {
+			t.Errorf("expected %d enum values, got %d", len(expected), len(stateProp.Value.Enum))
+		}
+	})
+
+	t.Run("nested struct", func(t *testing.T) {
+		type Address struct {
+			City    string `json:"city"`
+			Country string `json:"country"`
+		}
+		type Person struct {
+			Name    string  `json:"name"`
+			Address Address `json:"address"`
+		}
+
+		schema := jsonschema.GenerateSchema[Person]()
+
+		addressProp := schema.Properties.GetPair("address")
+		if addressProp.Value.Type != "object" {
+			t.Errorf("expected address type object, got %v", addressProp.Value.Type)
+		}
+		if addressProp.Value.Properties.Len() != 2 {
+			t.Errorf("expected 2 address properties, got %d", addressProp.Value.Properties.Len())
+		}
+		// Nested object should also have AdditionalProperties false
+		if addressProp.Value.AdditionalProperties != invopopjsonschema.FalseSchema {
+			t.Errorf("expected nested AdditionalProperties to be FalseSchema")
+		}
+	})
+
+	t.Run("array field", func(t *testing.T) {
+		type Response struct {
+			Items []string `json:"items"`
+		}
+
+		schema := jsonschema.GenerateSchema[Response]()
+
+		itemsProp := schema.Properties.GetPair("items")
+		if itemsProp.Value.Type != "array" {
+			t.Errorf("expected items type array, got %v", itemsProp.Value.Type)
+		}
+		if itemsProp.Value.Items == nil {
+			t.Fatalf("expected items.Items to be set")
+		}
+		if itemsProp.Value.Items.Type != "string" {
+			t.Errorf("expected items element type string, got %v", itemsProp.Value.Items.Type)
+		}
+	})
+
+	t.Run("embedded struct", func(t *testing.T) {
+		type Base struct {
+			ID string `json:"id"`
+		}
+		type Extended struct {
+			Base
+			Name string `json:"name"`
+		}
+
+		schema := jsonschema.GenerateSchema[Extended]()
+
+		// Embedded struct fields should be flattened
+		if schema.Properties.GetPair("id") == nil {
+			t.Errorf("expected embedded 'id' field to be present")
+		}
+		if schema.Properties.GetPair("name") == nil {
+			t.Errorf("expected 'name' field to be present")
+		}
+	})
+
+	t.Run("time.Time field", func(t *testing.T) {
+		type Event struct {
+			Name      string    `json:"name"`
+			Timestamp time.Time `json:"timestamp"`
+		}
+
+		schema := jsonschema.GenerateSchema[Event]()
+
+		timestampProp := schema.Properties.GetPair("timestamp")
+		// time.Time should be represented as a string with date-time format
+		if timestampProp.Value.Type != "string" {
+			t.Errorf("expected timestamp type string, got %v", timestampProp.Value.Type)
+		}
+		if timestampProp.Value.Format != "date-time" {
+			t.Errorf("expected timestamp format date-time, got %v", timestampProp.Value.Format)
+		}
+	})
+
+	t.Run("pointer field", func(t *testing.T) {
+		type Data struct {
+			Value  string  `json:"value"`
+			OptPtr *string `json:"opt_ptr,omitempty"`
+		}
+
+		schema := jsonschema.GenerateSchema[Data]()
+
+		if schema.Type != "object" {
+			t.Errorf("expected type object, got %v", schema.Type)
+		}
+		// Both fields should exist
+		if schema.Properties.GetPair("value") == nil {
+			t.Errorf("expected 'value' field to be present")
+		}
+		if schema.Properties.GetPair("opt_ptr") == nil {
+			t.Errorf("expected 'opt_ptr' field to be present")
+		}
+	})
 }

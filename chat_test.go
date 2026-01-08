@@ -497,6 +497,102 @@ func getChatCompletionBody(r *http.Request) (openai.ChatCompletionRequest, error
 	return completion, nil
 }
 
+func TestChatCompletionResponseFormatJSONSchema(t *testing.T) {
+	// Test that JSON schema response format serializes correctly
+	schema := jsonschema.Definition{
+		Type: jsonschema.Object,
+		Properties: map[string]jsonschema.Definition{
+			"steps": {
+				Type: jsonschema.Array,
+				Items: &jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"explanation": {Type: jsonschema.String},
+						"output":      {Type: jsonschema.String},
+					},
+					Required: []string{"explanation", "output"},
+				},
+			},
+			"final_answer": {Type: jsonschema.String},
+		},
+		Required: []string{"steps", "final_answer"},
+	}
+
+	schemaBytes, err := json.Marshal(schema)
+	checks.NoError(t, err, "failed to marshal schema")
+
+	respFormat := openai.ChatCompletionResponseFormat{
+		Type: openai.ChatCompletionResponseFormatTypeJSONSchema,
+		JSONSchema: &openai.ChatCompletionResponseFormatJSONSchema{
+			Name:        "math_response",
+			Description: "A math problem solution with steps",
+			Schema:      schemaBytes,
+			Strict:      true,
+		},
+	}
+
+	data, err := json.Marshal(respFormat)
+	checks.NoError(t, err, "failed to marshal response format")
+
+	// Verify the JSON structure
+	var result map[string]any
+	err = json.Unmarshal(data, &result)
+	checks.NoError(t, err, "failed to unmarshal result")
+
+	if result["type"] != "json_schema" {
+		t.Errorf("expected type to be json_schema, got %v", result["type"])
+	}
+
+	jsonSchema, ok := result["json_schema"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected json_schema to be an object")
+	}
+
+	if jsonSchema["name"] != "math_response" {
+		t.Errorf("expected name to be math_response, got %v", jsonSchema["name"])
+	}
+	if jsonSchema["strict"] != true {
+		t.Errorf("expected strict to be true, got %v", jsonSchema["strict"])
+	}
+}
+
+func TestStructuredOutputRequest(t *testing.T) {
+	client, server, teardown := setupOpenAITestServer()
+	defer teardown()
+	server.RegisterHandler("/v1/chat/completions", handleChatCompletionEndpoint)
+
+	schema := jsonschema.Definition{
+		Type: jsonschema.Object,
+		Properties: map[string]jsonschema.Definition{
+			"result": {Type: jsonschema.String},
+		},
+		Required: []string{"result"},
+	}
+
+	schemaBytes, err := json.Marshal(schema)
+	checks.NoError(t, err, "failed to marshal schema")
+
+	_, err = client.CreateChatCompletion(context.Background(), openai.ChatCompletionRequest{
+		MaxTokens: 5,
+		Model:     openai.GPT4oMini,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: "What is 2+2?",
+			},
+		},
+		ResponseFormat: &openai.ChatCompletionResponseFormat{
+			Type: openai.ChatCompletionResponseFormatTypeJSONSchema,
+			JSONSchema: &openai.ChatCompletionResponseFormatJSONSchema{
+				Name:   "math_result",
+				Schema: schemaBytes,
+				Strict: true,
+			},
+		},
+	})
+	checks.NoError(t, err, "CreateChatCompletion with structured output error")
+}
+
 func TestFinishReason(t *testing.T) {
 	c := &openai.ChatCompletionChoice{
 		FinishReason: openai.FinishReasonNull,

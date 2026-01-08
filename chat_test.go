@@ -499,7 +499,6 @@ func getChatCompletionBody(r *http.Request) (openai.ChatCompletionRequest, error
 
 func TestChatCompletionResponseFormatJSONSchema(t *testing.T) {
 	// Test that JSON schema response format serializes correctly
-	f := false
 	schema := jsonschema.Definition{
 		Type: jsonschema.Object,
 		Properties: map[string]jsonschema.Definition{
@@ -511,14 +510,12 @@ func TestChatCompletionResponseFormatJSONSchema(t *testing.T) {
 						"explanation": {Type: jsonschema.String},
 						"output":      {Type: jsonschema.String},
 					},
-					Required:             []string{"explanation", "output"},
-					AdditionalProperties: &f,
+					Required: []string{"explanation", "output"},
 				},
 			},
 			"final_answer": {Type: jsonschema.String},
 		},
-		Required:             []string{"steps", "final_answer"},
-		AdditionalProperties: &f,
+		Required: []string{"steps", "final_answer"},
 	}
 
 	schemaBytes, err := json.Marshal(schema)
@@ -564,14 +561,12 @@ func TestStructuredOutputRequest(t *testing.T) {
 	defer teardown()
 	server.RegisterHandler("/v1/chat/completions", handleChatCompletionEndpoint)
 
-	f := false
 	schema := jsonschema.Definition{
 		Type: jsonschema.Object,
 		Properties: map[string]jsonschema.Definition{
 			"result": {Type: jsonschema.String},
 		},
-		Required:             []string{"result"},
-		AdditionalProperties: &f,
+		Required: []string{"result"},
 	}
 
 	schemaBytes, err := json.Marshal(schema)

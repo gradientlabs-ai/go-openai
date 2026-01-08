@@ -212,23 +212,6 @@ func structToMap(t *testing.T, v any) map[string]any {
 	return got
 }
 
-func TestPtr(t *testing.T) {
-	f := jsonschema.Ptr(false)
-	if *f != false {
-		t.Errorf("expected false, got %v", *f)
-	}
-
-	tr := jsonschema.Ptr(true)
-	if *tr != true {
-		t.Errorf("expected true, got %v", *tr)
-	}
-
-	s := jsonschema.Ptr("hello")
-	if *s != "hello" {
-		t.Errorf("expected 'hello', got %v", *s)
-	}
-}
-
 func TestGenerateSchema(t *testing.T) {
 	t.Run("simple struct", func(t *testing.T) {
 		type Person struct {

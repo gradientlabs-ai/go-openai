@@ -83,12 +83,3 @@ func GenerateSchema[T any]() *jsonschema.Schema {
 	return reflector.Reflect(v)
 }
 
-// Ptr is a helper function that returns a pointer to the given value.
-// Useful for setting AdditionalProperties on Definition.
-//
-// Example:
-//
-//	schema.AdditionalProperties = jsonschema.Ptr(false)
-func Ptr[T any](v T) *T {
-	return &v
-}

@@ -55,6 +55,7 @@ func (d Definition) MarshalJSON() ([]byte, error) {
 // It uses github.com/invopop/jsonschema with settings optimized for OpenAI structured outputs:
 //   - AdditionalProperties is always false (strict mode)
 //   - No $ref usage (schemas are fully inlined)
+//   - Anonymous mode enabled (no $id field to avoid leaking package paths)
 //
 // Supported struct tags:
 //   - `json:"field_name"` for the JSON field name
@@ -78,6 +79,7 @@ func GenerateSchema[T any]() *jsonschema.Schema {
 	reflector := jsonschema.Reflector{
 		AllowAdditionalProperties: false,
 		DoNotReference:            true,
+		Anonymous:                 true,
 	}
 	var v T
 	return reflector.Reflect(v)

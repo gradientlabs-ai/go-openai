@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -255,8 +257,35 @@ func (c *Client) fullURL(suffix string, args ...any) string {
 }
 
 func (c *Client) handleErrorResp(resp *http.Response) error {
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return &RequestError{
+			HTTPStatusCode: resp.StatusCode,
+			Err:            err,
+			httpHeader:     httpHeader(resp.Header),
+		}
+	}
+
+	log.Printf("error response body: %s", string(bodyBytes))
+
 	var errRes ErrorResponse
-	err := json.NewDecoder(resp.Body).Decode(&errRes)
+	err = json.Unmarshal(bodyBytes, &errRes)
+	if err != nil {
+		// Check whether we failed to unmarshal the response body because
+		// it is an array. This appears to be a compatibility bug; Google's API
+		// is not returning the error in an expected format.
+		var unmarshalErr *json.UnmarshalTypeError
+		if errors.As(err, &unmarshalErr) && unmarshalErr.Value == "array" {
+			// Try to unmarshal as array-wrapped format: [{"error": {...}}]
+			var errResArray []ErrorResponse
+			if arrayErr := json.Unmarshal(bodyBytes, &errResArray); arrayErr == nil && len(errResArray) > 0 {
+				// Successfully unmarshaled as array, use the first error
+				errRes = errResArray[0]
+				err = nil // Clear the error since we successfully parsed it
+			}
+		}
+	}
+
 	if err != nil || errRes.Error == nil {
 		reqErr := &RequestError{
 			HTTPStatusCode: resp.StatusCode,

@@ -304,7 +304,7 @@ func TestMultipartChatCompletions(t *testing.T) {
 
 	_, err := client.CreateChatCompletion(context.Background(), openai.ChatCompletionRequest{
 		MaxTokens: 5,
-		Model:     openai.GPT3Dot5Turbo,
+		Model:     openai.GPT3Ada002,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role: openai.ChatMessageRoleUser,
@@ -318,6 +318,13 @@ func TestMultipartChatCompletions(t *testing.T) {
 						ImageURL: &openai.ChatMessageImageURL{
 							URL:    "URL",
 							Detail: openai.ImageURLDetailLow,
+						},
+					},
+					{
+						Type: openai.ChatMessagePartTypeFile,
+						File: &openai.ChatMessageFileData{
+							FileData: "bytes",
+							Filename: "testing.pdf",
 						},
 					},
 				},

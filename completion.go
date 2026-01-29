@@ -15,9 +15,13 @@ var (
 // Defines the models provided by OpenAI to use when generating
 // completions from OpenAI.
 const (
-	GPT4Dot5PreviewLatest   = "gpt-4.5-preview"
-	GPT4Dot5Preview20250227 = "gpt-4.5-preview-2025-02-27"
-	GPTO3MiniLatest         = "o3-mini"
+	GPT5Dot1ChatLatest       = "gpt-5.1-chat-latest"
+	GPT5Dot120251113         = "gpt-5.1-2025-11-13"
+	GPT4Dot120250414         = "gpt-4.1-2025-04-14"
+	GPT4Dot1Mini20250414     = "gpt-4.1-mini-2025-04-14"
+	GPT4Dot5PreviewLatest    = "gpt-4.5-preview"
+	GPT4Dot5Preview20250227  = "gpt-4.5-preview-2025-02-27"
+	GPTO3MiniLatest          = "o3-mini"
 	GPTO3Mini20250131       = "o3-mini-2025-01-31"
 	GPTO120241217           = "o1-2024-12-17"
 	GPTO1Preview            = "o1-preview"

@@ -108,6 +108,11 @@ type ChatCompletionMessage struct {
 
 	// For Role=tool prompts this should be set to the ID given in the assistant's prior request to call a tool.
 	ToolCallID string `json:"tool_call_id,omitempty"`
+
+	// Reasoning contains the model's reasoning/thinking process when using reasoning models
+	// (e.g., Cerebras GLM 4.7 with ReasoningEffort enabled).
+	// This field is populated by providers that expose thinking in a separate field.
+	Reasoning string `json:"reasoning,omitempty"`
 }
 
 func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
@@ -123,6 +128,7 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 			FunctionCall *FunctionCall     `json:"function_call,omitempty"`
 			ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
 			ToolCallID   string            `json:"tool_call_id,omitempty"`
+			Reasoning    string            `json:"reasoning,omitempty"`
 		}(m)
 		return json.Marshal(msg)
 	}
@@ -134,6 +140,7 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
 		ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID   string            `json:"tool_call_id,omitempty"`
+		Reasoning    string            `json:"reasoning,omitempty"`
 	}(m)
 	return json.Marshal(msg)
 }
@@ -147,6 +154,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		FunctionCall *FunctionCall `json:"function_call,omitempty"`
 		ToolCalls    []ToolCall    `json:"tool_calls,omitempty"`
 		ToolCallID   string        `json:"tool_call_id,omitempty"`
+		Reasoning    string        `json:"reasoning,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &msg); err == nil {
 		*m = ChatCompletionMessage(msg)
@@ -160,6 +168,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
 		ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID   string            `json:"tool_call_id,omitempty"`
+		Reasoning    string            `json:"reasoning,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &multiMsg); err != nil {
 		return err
@@ -229,8 +238,9 @@ type ChatCompletionRequest struct {
 	FunctionCall any    `json:"function_call,omitempty"`
 	Tools        []Tool `json:"tools,omitempty"`
 	// This can be either a string or an ToolChoice object.
-	ToolChoice      any    `json:"tool_choice,omitempty"`
-	ReasoningEffort string `json:"reasoning_effort,omitempty"`
+	ToolChoice      any         `json:"tool_choice,omitempty"`
+	ReasoningEffort string      `json:"reasoning_effort,omitempty"`
+	ServiceTier     ServiceTier `json:"service_tier,omitempty"`
 }
 
 type ToolType string
@@ -289,6 +299,15 @@ type LogProbs struct {
 	Content []LogProb `json:"content"`
 }
 
+type ServiceTier string
+
+const (
+	ServiceTierAuto     ServiceTier = "auto"
+	ServiceTierDefault  ServiceTier = "default"
+	ServiceTierFlex     ServiceTier = "flex"
+	ServiceTierPriority ServiceTier = "priority"
+)
+
 type FinishReason string
 
 const (
@@ -330,6 +349,7 @@ type ChatCompletionResponse struct {
 	Choices           []ChatCompletionChoice `json:"choices"`
 	Usage             Usage                  `json:"usage"`
 	SystemFingerprint string                 `json:"system_fingerprint"`
+	ServiceTier       ServiceTier            `json:"service_tier,omitempty"`
 
 	httpHeader
 }

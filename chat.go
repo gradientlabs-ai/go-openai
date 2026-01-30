@@ -116,6 +116,9 @@ type ChatCompletionMessage struct {
 	// ReasoningContent contains the model's reasoning/thinking process when using reasoning models
 	// (e.g., OpenAI o1 models or Gemini with thinking enabled).
 	ReasoningContent string `json:"reasoning_content,omitempty"`
+
+	// Reasoning contains model reasoning from certain Cerebras / Groq models with reasoning enabled.
+	Reasoning string `json:"reasoning,omitempty"`
 }
 
 func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
@@ -132,6 +135,7 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 			ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
 			ToolCallID       string            `json:"tool_call_id,omitempty"`
 			ReasoningContent string            `json:"reasoning_content,omitempty"`
+			Reasoning        string            `json:"reasoning,omitempty"`
 		}(m)
 		return json.Marshal(msg)
 	}
@@ -144,6 +148,7 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 		ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID       string            `json:"tool_call_id,omitempty"`
 		ReasoningContent string            `json:"reasoning_content,omitempty"`
+		Reasoning        string            `json:"reasoning,omitempty"`
 	}(m)
 	return json.Marshal(msg)
 }
@@ -158,6 +163,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		ToolCalls        []ToolCall    `json:"tool_calls,omitempty"`
 		ToolCallID       string        `json:"tool_call_id,omitempty"`
 		ReasoningContent string        `json:"reasoning_content,omitempty"`
+		Reasoning        string        `json:"reasoning,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &msg); err == nil {
 		*m = ChatCompletionMessage(msg)
@@ -172,6 +178,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID       string            `json:"tool_call_id,omitempty"`
 		ReasoningContent string            `json:"reasoning_content,omitempty"`
+		Reasoning        string            `json:"reasoning,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &multiMsg); err != nil {
 		return err
@@ -203,7 +210,7 @@ const (
 )
 
 type ChatCompletionResponseFormat struct {
-	Type       ChatCompletionResponseFormatType       `json:"type,omitempty"`
+	Type       ChatCompletionResponseFormatType        `json:"type,omitempty"`
 	JSONSchema *ChatCompletionResponseFormatJSONSchema `json:"json_schema,omitempty"`
 }
 

@@ -15,6 +15,9 @@ var (
 // Defines the models provided by OpenAI to use when generating
 // completions from OpenAI.
 const (
+	GPT5Dot4              = "gpt-5.4"
+	GPT5Dot4ChatLatest    = "gpt-5.4-chat-latest"
+	GPT5Dot420260305      = "gpt-5.4-2026-03-05"
 	GPT5Dot2              = "gpt-5.2"
 	GPT5Dot2ChatLatest    = "gpt-5.2-chat-latest"
 	GPT5Dot220251211      = "gpt-5.2-2025-12-11"
@@ -110,6 +113,9 @@ const (
 
 var disabledModelsForEndpoints = map[string]map[string]bool{
 	"/completions": {
+		GPT5Dot4:             true,
+		GPT5Dot420260305:     true,
+		GPT5Dot4ChatLatest:   true,
 		GPT5Dot1:             true,
 		GPT5Dot120251113:     true,
 		GPT5Dot1ChatLatest:   true,

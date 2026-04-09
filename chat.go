@@ -71,7 +71,7 @@ type ChatMessageImageURL struct {
 // And for uploading files: https://platform.openai.com/docs/guides/pdf-files?api-mode=chat&lang=python#uploading-files
 type ChatMessageFileData struct {
 	// Use FileID to reference a file already uploaded to OpenAI via their Files API.
-	FileID   string `json:"file_id,omitempty"`
+	FileID string `json:"file_id,omitempty"`
 	// Otherwise use FileData to pass in the file data as a base64 data URL.
 	FileData string `json:"file_data,omitempty"`
 	// Filename seems to be a required field, even when passing in the file data as bytes.
@@ -205,7 +205,7 @@ type ChatCompletionRequest struct {
 	MaxTokens int `json:"max_tokens,omitempty"`
 	// MaxCompletionTokens should be used for OpenAI provider
 	MaxCompletionTokens int                           `json:"max_completion_tokens,omitempty"`
-	Temperature         float32                       `json:"temperature,omitempty"`
+	Temperature         *float32                      `json:"temperature,omitempty"`
 	TopP                float32                       `json:"top_p,omitempty"`
 	N                   int                           `json:"n,omitempty"`
 	Stream              bool                          `json:"stream,omitempty"`

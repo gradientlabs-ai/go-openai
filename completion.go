@@ -15,6 +15,7 @@ var (
 // Defines the models provided by OpenAI to use when generating
 // completions from OpenAI.
 const (
+	GPT6Luna              = "gpt-6-luna"
 	GPT5Dot6Luna          = "gpt-5.6-luna"
 	GPT5Dot6Sol           = "gpt-5.6-sol"
 	GPT5Dot6Terra         = "gpt-5.6-terra"
@@ -120,6 +121,7 @@ const (
 
 var disabledModelsForEndpoints = map[string]map[string]bool{
 	"/completions": {
+		GPT6Luna:             true,
 		GPT5Dot6Luna:         true,
 		GPT5Dot6Sol:          true,
 		GPT5Dot6Terra:        true,

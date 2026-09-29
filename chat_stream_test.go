@@ -46,12 +46,12 @@ func TestCreateChatCompletionStream(t *testing.T) {
 		dataBytes := []byte{}
 		dataBytes = append(dataBytes, []byte("event: message\n")...)
 		//nolint:lll
-		data := `{"id":"1","object":"completion","created":1598069254,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"content":"response1"},"finish_reason":"max_tokens"}]}`
+		data := `{"id":"1","object":"completion","created":1598069254,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"content":"response1","reasoning_content":"reasoning1"},"finish_reason":"max_tokens"}]}`
 		dataBytes = append(dataBytes, []byte("data: "+data+"\n\n")...)
 
 		dataBytes = append(dataBytes, []byte("event: message\n")...)
 		//nolint:lll
-		data = `{"id":"2","object":"completion","created":1598069255,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"content":"response2"},"finish_reason":"max_tokens"}]}`
+		data = `{"id":"2","object":"completion","created":1598069255,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"content":"response2","reasoning":"reasoning2"},"finish_reason":"max_tokens"}]}`
 		dataBytes = append(dataBytes, []byte("data: "+data+"\n\n")...)
 
 		dataBytes = append(dataBytes, []byte("event: done\n")...)
@@ -84,7 +84,8 @@ func TestCreateChatCompletionStream(t *testing.T) {
 			Choices: []openai.ChatCompletionStreamChoice{
 				{
 					Delta: openai.ChatCompletionStreamChoiceDelta{
-						Content: "response1",
+						Content:          "response1",
+						ReasoningContent: "reasoning1",
 					},
 					FinishReason: "max_tokens",
 				},
@@ -98,7 +99,8 @@ func TestCreateChatCompletionStream(t *testing.T) {
 			Choices: []openai.ChatCompletionStreamChoice{
 				{
 					Delta: openai.ChatCompletionStreamChoiceDelta{
-						Content: "response2",
+						Content:   "response2",
+						Reasoning: "reasoning2",
 					},
 					FinishReason: "max_tokens",
 				},

@@ -83,11 +83,6 @@ func handleCompletionEndpoint(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "could not read request", http.StatusInternalServerError)
 		return
 	}
-	prompt, ok := completionReq.Prompt.(string)
-	if !ok {
-		http.Error(w, "expected a string prompt", http.StatusBadRequest)
-		return
-	}
 	res := openai.CompletionResponse{
 		ID:      strconv.Itoa(int(time.Now().Unix())),
 		Object:  "test-object",
@@ -106,14 +101,14 @@ func handleCompletionEndpoint(w http.ResponseWriter, r *http.Request) {
 		// generate a random string of length completionReq.Length
 		completionStr := strings.Repeat("a", completionReq.MaxTokens)
 		if completionReq.Echo {
-			completionStr = prompt + completionStr
+			completionStr = completionReq.Prompt.(string) + completionStr
 		}
 		res.Choices = append(res.Choices, openai.CompletionChoice{
 			Text:  completionStr,
 			Index: i,
 		})
 	}
-	inputTokens := numTokens(prompt) * n
+	inputTokens := numTokens(completionReq.Prompt.(string)) * n
 	completionTokens := completionReq.MaxTokens * n
 	res.Usage = openai.Usage{
 		PromptTokens:     inputTokens,

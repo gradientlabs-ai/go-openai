@@ -84,3 +84,4 @@ func GenerateSchema[T any]() *jsonschema.Schema {
 	var v T
 	return reflector.Reflect(v)
 }
+

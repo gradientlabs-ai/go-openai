@@ -232,7 +232,7 @@ type ChatCompletionRequest struct {
 	MaxTokens int `json:"max_tokens,omitempty"`
 	// MaxCompletionTokens should be used for OpenAI provider
 	MaxCompletionTokens int                           `json:"max_completion_tokens,omitempty"`
-	Temperature         float32                       `json:"temperature,omitempty"`
+	Temperature         float32                       `json:"temperature"`
 	TopP                float32                       `json:"top_p,omitempty"`
 	N                   int                           `json:"n,omitempty"`
 	Stream              bool                          `json:"stream,omitempty"`

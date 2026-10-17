@@ -59,8 +59,8 @@ func TestChatRequestOmitEmpty(t *testing.T) {
 	})
 	checks.NoError(t, err)
 
-	// messages is also required so isn't omitted
-	const expected = `{"model":"gpt-4","messages":null}`
+	// Messages is required, and zero temperature must override the API default.
+	const expected = `{"model":"gpt-4","messages":null,"temperature":0}`
 	if string(data) != expected {
 		t.Errorf("expected JSON with all empty fields to be %v but was %v", expected, string(data))
 	}

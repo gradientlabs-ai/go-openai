@@ -16,6 +16,16 @@ import (
 	"github.com/gradientlabs-ai/go-openai/internal/test/checks"
 )
 
+func TestCompletionRequestOmitEmpty(t *testing.T) {
+	data, err := json.Marshal(openai.CompletionRequest{Model: "davinci-002"})
+	checks.NoError(t, err)
+
+	const expected = `{"model":"davinci-002","temperature":0}`
+	if string(data) != expected {
+		t.Errorf("expected JSON with all empty fields to be %v but was %v", expected, string(data))
+	}
+}
+
 func TestCompletionsWrongModel(t *testing.T) {
 	config := openai.DefaultConfig("whatever")
 	config.BaseURL = "http://localhost/v1"

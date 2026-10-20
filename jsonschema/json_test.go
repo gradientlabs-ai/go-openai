@@ -212,6 +212,7 @@ func structToMap(t *testing.T, v any) map[string]any {
 	return got
 }
 
+//nolint:gocognit // Independent subtests cover separate schema features.
 func TestGenerateSchema(t *testing.T) {
 	t.Run("simple struct", func(t *testing.T) {
 		type Person struct {

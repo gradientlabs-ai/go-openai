@@ -16,6 +16,28 @@ import (
 	"github.com/gradientlabs-ai/go-openai/internal/test/checks"
 )
 
+func TestCompletionRequestOmitEmpty(t *testing.T) {
+	data, err := json.Marshal(openai.CompletionRequest{Model: "davinci-002"})
+	checks.NoError(t, err)
+
+	const expected = `{"model":"davinci-002"}`
+	if string(data) != expected {
+		t.Errorf("expected JSON with all empty fields to be %v but was %v", expected, string(data))
+	}
+}
+
+func TestCompletionRequestPreservesZeroTemperature(t *testing.T) {
+	var temperature float32
+	data, err := json.Marshal(openai.CompletionRequest{Model: "davinci-002", Temperature: &temperature})
+	checks.NoError(t, err)
+
+	// An explicit zero temperature must be sent to override the API default.
+	const expected = `{"model":"davinci-002","temperature":0}`
+	if string(data) != expected {
+		t.Errorf("expected JSON with zero temperature to be %v but was %v", expected, string(data))
+	}
+}
+
 func TestCompletionsWrongModel(t *testing.T) {
 	config := openai.DefaultConfig("whatever")
 	config.BaseURL = "http://localhost/v1"
@@ -73,6 +95,11 @@ func handleCompletionEndpoint(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "could not read request", http.StatusInternalServerError)
 		return
 	}
+	prompt, ok := completionReq.Prompt.(string)
+	if !ok {
+		http.Error(w, "expected a string prompt", http.StatusBadRequest)
+		return
+	}
 	res := openai.CompletionResponse{
 		ID:      strconv.Itoa(int(time.Now().Unix())),
 		Object:  "test-object",
@@ -91,14 +118,14 @@ func handleCompletionEndpoint(w http.ResponseWriter, r *http.Request) {
 		// generate a random string of length completionReq.Length
 		completionStr := strings.Repeat("a", completionReq.MaxTokens)
 		if completionReq.Echo {
-			completionStr = completionReq.Prompt.(string) + completionStr
+			completionStr = prompt + completionStr
 		}
 		res.Choices = append(res.Choices, openai.CompletionChoice{
 			Text:  completionStr,
 			Index: i,
 		})
 	}
-	inputTokens := numTokens(completionReq.Prompt.(string)) * n
+	inputTokens := numTokens(prompt) * n
 	completionTokens := completionReq.MaxTokens * n
 	res.Usage = openai.Usage{
 		PromptTokens:     inputTokens,

@@ -66,6 +66,21 @@ func TestChatRequestOmitEmpty(t *testing.T) {
 	}
 }
 
+func TestChatRequestPreservesZeroTemperature(t *testing.T) {
+	var temperature float32
+	data, err := json.Marshal(openai.ChatCompletionRequest{
+		Model:       "gpt-4",
+		Temperature: &temperature,
+	})
+	checks.NoError(t, err)
+
+	// An explicit zero temperature must be sent to override the API default.
+	const expected = `{"model":"gpt-4","messages":null,"temperature":0}`
+	if string(data) != expected {
+		t.Errorf("expected JSON with zero temperature to be %v but was %v", expected, string(data))
+	}
+}
+
 func TestChatCompletionsWithStream(t *testing.T) {
 	config := openai.DefaultConfig("whatever")
 	config.BaseURL = "http://localhost/v1"

@@ -232,7 +232,7 @@ type ChatCompletionRequest struct {
 	MaxTokens int `json:"max_tokens,omitempty"`
 	// MaxCompletionTokens should be used for OpenAI provider
 	MaxCompletionTokens int                           `json:"max_completion_tokens,omitempty"`
-	Temperature         float32                       `json:"temperature,omitempty"`
+	Temperature         *float32                      `json:"temperature,omitempty"`
 	TopP                float32                       `json:"top_p,omitempty"`
 	N                   int                           `json:"n,omitempty"`
 	Stream              bool                          `json:"stream,omitempty"`
@@ -264,7 +264,8 @@ type ChatCompletionRequest struct {
 	// Options for streaming response. Only set this when you set stream: true.
 	StreamOptions   *StreamOptions `json:"stream_options,omitempty"`
 	ReasoningEffort string         `json:"reasoning_effort,omitempty"`
-	// Verbosity constrains the verbosity of the model's response. Lower values will result in more concise responses, while higher values will result in more verbose responses.
+	// Verbosity constrains the verbosity of the model's response. Lower values will result in more concise responses,
+	// while higher values will result in more verbose responses.
 	Verbosity string `json:"verbosity,omitempty"`
 	// Specifies the latency tier to use for processing the request.
 	ServiceTier ServiceTier `json:"service_tier,omitempty"`

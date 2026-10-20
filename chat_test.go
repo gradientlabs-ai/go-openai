@@ -59,10 +59,25 @@ func TestChatRequestOmitEmpty(t *testing.T) {
 	})
 	checks.NoError(t, err)
 
-	// Messages is required, and zero temperature must override the API default.
-	const expected = `{"model":"gpt-4","messages":null,"temperature":0}`
+	// messages is also required so isn't omitted
+	const expected = `{"model":"gpt-4","messages":null}`
 	if string(data) != expected {
 		t.Errorf("expected JSON with all empty fields to be %v but was %v", expected, string(data))
+	}
+}
+
+func TestChatRequestPreservesZeroTemperature(t *testing.T) {
+	var temperature float32
+	data, err := json.Marshal(openai.ChatCompletionRequest{
+		Model:       "gpt-4",
+		Temperature: &temperature,
+	})
+	checks.NoError(t, err)
+
+	// An explicit zero temperature must be sent to override the API default.
+	const expected = `{"model":"gpt-4","messages":null,"temperature":0}`
+	if string(data) != expected {
+		t.Errorf("expected JSON with zero temperature to be %v but was %v", expected, string(data))
 	}
 }
 

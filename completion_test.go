@@ -20,9 +20,21 @@ func TestCompletionRequestOmitEmpty(t *testing.T) {
 	data, err := json.Marshal(openai.CompletionRequest{Model: "davinci-002"})
 	checks.NoError(t, err)
 
-	const expected = `{"model":"davinci-002","temperature":0}`
+	const expected = `{"model":"davinci-002"}`
 	if string(data) != expected {
 		t.Errorf("expected JSON with all empty fields to be %v but was %v", expected, string(data))
+	}
+}
+
+func TestCompletionRequestPreservesZeroTemperature(t *testing.T) {
+	var temperature float32
+	data, err := json.Marshal(openai.CompletionRequest{Model: "davinci-002", Temperature: &temperature})
+	checks.NoError(t, err)
+
+	// An explicit zero temperature must be sent to override the API default.
+	const expected = `{"model":"davinci-002","temperature":0}`
+	if string(data) != expected {
+		t.Errorf("expected JSON with zero temperature to be %v but was %v", expected, string(data))
 	}
 }
 

@@ -42,8 +42,6 @@ const (
 	GPT4Dot120250414      = "gpt-4.1-2025-04-14"
 	GPT4Dot1Mini          = "gpt-4.1-mini"
 	GPT4Dot1Mini20250414  = "gpt-4.1-mini-2025-04-14"
-	GPT4Dot1Nano          = "gpt-4.1-nano"
-	GPT4Dot1Nano20250414  = "gpt-4.1-nano-2025-04-14"
 	GPTO3Latest           = "o3"
 	GPTO320250416         = "o3-2025-04-16"
 	GPTO4MiniLatest       = "o4-mini"
@@ -145,8 +143,6 @@ var disabledModelsForEndpoints = map[string]map[string]bool{
 		GPT4Dot120250414:     true,
 		GPT4Dot1Mini:         true,
 		GPT4Dot1Mini20250414: true,
-		GPT4Dot1Nano:         true,
-		GPT4Dot1Nano20250414: true,
 		GPTO3Latest:          true,
 		GPTO320250416:        true,
 		GPTO4MiniLatest:      true,
